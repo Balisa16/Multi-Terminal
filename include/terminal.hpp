@@ -4,18 +4,10 @@
 #include <string>
 #include <vector>
 
-// Click event Callback
-static void prepare_button_callback(GtkButton* button, gpointer user_data) {
-    std::cout << "Prepare button clicked" << std::endl;
-}
-
-static void run_button_callback(GtkButton* button, gpointer user_data) {
-    std::cout << "Run button clicked" << std::endl;
-}
-
 class Terminal
 {
 private:
+public:
     void create_terminal(GtkWidget* container)
     {
         GtkWidget* terminal = vte_terminal_new();
@@ -45,6 +37,15 @@ private:
         // delete terminal;
     }
 
+    // Click event Callback
+    static void prepare_button_callback(GtkButton* button, gpointer user_data) {
+        std::cout << "Prepare button clicked" << std::endl;
+    }
+
+    static void run_button_callback(GtkButton* button, gpointer user_data) {
+        std::cout << "Run button clicked" << std::endl;
+    }
+
     void create_terminal_with_buttons(GtkWidget* container) {
         GtkWidget* box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
         gtk_container_add(GTK_CONTAINER(container), box);
@@ -68,7 +69,6 @@ private:
         // Pack the grid at the bottom of the box
         gtk_box_pack_end(GTK_BOX(box), button_grid, FALSE, FALSE, 5);
     }
-public:
     Terminal(int argc, char* argv[]);
     ~Terminal();
 };
