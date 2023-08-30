@@ -31,7 +31,8 @@ static void create_terminal(GtkWidget* container) {
 
 static void prepare_button_clicked(GtkButton* button, gpointer user_data) {
     // Handle the "Prepare" button click
-    std::cout << "Prepare button clicked : " << &user_data << std::endl;
+    const char* message = static_cast<const char*>(user_data);
+    std::cout << "Prepare button clicked : " << message << std::endl;
 }
 
 static void run_button_clicked(GtkButton* button, gpointer user_data) {
@@ -52,8 +53,8 @@ static void create_terminal_with_buttons(GtkWidget* container, std::string comma
 
     GtkWidget* prepare_button = gtk_button_new_with_label("Prepare");
     GtkWidget* run_button = gtk_button_new_with_label("Run");
-
-    g_signal_connect_data(prepare_button, "clicked", G_CALLBACK(prepare_button_clicked), (gpointer)command.c_str(), NULL, G_CONNECT_SWAPPED);
+    const char* user_data = "test";
+    g_signal_connect_data(prepare_button, "clicked", G_CALLBACK(prepare_button_clicked), (gpointer)user_data, NULL, G_CONNECT_SWAPPED);
     g_signal_connect(run_button, "clicked", G_CALLBACK(run_button_clicked), NULL);
 
     // Add buttons to the grid
