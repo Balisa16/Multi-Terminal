@@ -4,6 +4,15 @@
 #include <string>
 #include <vector>
 
+// Click event Callback
+static void prepare_button_callback(GtkButton* button, gpointer user_data) {
+    std::cout << "Prepare button clicked" << std::endl;
+}
+
+static void run_button_callback(GtkButton* button, gpointer user_data) {
+    std::cout << "Run button clicked" << std::endl;
+}
+
 class Terminal
 {
 private:
@@ -36,15 +45,6 @@ private:
         // delete terminal;
     }
 
-    // Click event Callback
-    static void prepare_button_callback(GtkButton* button, gpointer user_data) {
-        std::cout << "Prepare button clicked" << std::endl;
-    }
-
-    static void run_button_callback(GtkButton* button, gpointer user_data) {
-        std::cout << "Run button clicked" << std::endl;
-    }
-
     void create_terminal_with_buttons(GtkWidget* container) {
         GtkWidget* box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
         gtk_container_add(GTK_CONTAINER(container), box);
@@ -58,8 +58,8 @@ private:
         GtkWidget* prepare_button = gtk_button_new_with_label("Prepare");
         GtkWidget* run_button = gtk_button_new_with_label("Run");
 
-        g_signal_connect(prepare_button, "Clicked", G_CALLBACK(prepare_button_callback), NULL);
-        g_signal_connect(run_button, "Clicked", G_CALLBACK(run_button_callback), NULL);
+        g_signal_connect(prepare_button, "Prepare Clicked", G_CALLBACK(prepare_button_callback), NULL);
+        g_signal_connect(run_button, "Run Clicked", G_CALLBACK(run_button_callback), NULL);
 
         // Add buttons to the grid
         gtk_grid_attach(GTK_GRID(button_grid), prepare_button, 0, 0, 1, 1);
