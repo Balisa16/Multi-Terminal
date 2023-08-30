@@ -31,7 +31,8 @@ static void create_terminal(GtkWidget* container) {
 
 static void prepare_button_clicked(GtkButton* button, gpointer user_data) {
     // Handle the "Prepare" button click
-    std::cout << "Prepare button clicked : " << (char *)user_data << std::endl;
+    const char* message = static_cast<const char*>(user_data);
+    std::cout << "Prepare button clicked : " << message << std::endl;
     // std::cout << &user_data << std::endl;
 }
 
@@ -41,7 +42,7 @@ static void run_button_clicked(GtkButton* button, gpointer user_data) {
 }
 
 
-static void create_terminal_with_buttons(GtkWidget* container, int cmd_idx) {
+static void create_terminal_with_buttons(GtkWidget* container, const char *cmd) {
     GtkWidget* box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     gtk_container_add(GTK_CONTAINER(container), box);
 
@@ -53,9 +54,8 @@ static void create_terminal_with_buttons(GtkWidget* container, int cmd_idx) {
 
     GtkWidget* prepare_button = gtk_button_new_with_label("Prepare");
     GtkWidget* run_button = gtk_button_new_with_label("Run");
-    const char *user_data = "test";
-    g_signal_connect(prepare_button, "clicked", G_CALLBACK(prepare_button_clicked), (gpointer)user_data);
-    g_signal_connect(run_button, "clicked", G_CALLBACK(run_button_clicked), NULL);
+    g_signal_connect(prepare_button, "clicked", G_CALLBACK(prepare_button_clicked), (gpointer)cmd);
+    g_signal_connect(run_button, "clicked", G_CALLBACK(run_button_clicked), (gpointer)cmd);
 
     // Add buttons to the grid
     gtk_grid_attach(GTK_GRID(button_grid), prepare_button, 0, 0, 1, 1);
@@ -66,10 +66,15 @@ static void create_terminal_with_buttons(GtkWidget* container, int cmd_idx) {
 }
 
 int main(int argc, char* argv[]) {
-    std::string command[6] = {
+    std::string command[8] = {
         "./rs.sh",
         "./apm.sh",
-        "./rs2.sh"
+        "roslaunch rplidar_ros rplidar_s1.launch",
+        "./rs2.sh",
+        "date",
+        "ls /dev/video*",
+        "rosservice call /mavros/set_stream_rate 0 100 1",
+        "rosrun emiro 1 0 1"
     };
 
     gtk_init(&argc, &argv);
@@ -101,13 +106,13 @@ int main(int argc, char* argv[]) {
         gtk_container_add(GTK_CONTAINER(terminal_frame), terminal_box);
         // gtk_container_add(GTK_CONTAINER(terminal_frame_buttons), buttons_box);
         
-        create_terminal_with_buttons(terminal_box, i);
+        create_terminal_with_buttons(terminal_box, command[i].c_str());
         
         gtk_box_pack_start(GTK_BOX(upper_box), terminal_frame, TRUE, TRUE, 5);
         // gtk_box_pack_start(GTK_BOX(upper_box), terminal_frame_buttons, TRUE, TRUE, 5);
     }
 
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 4; i < 8; ++i) {
         GtkWidget* terminal_frame = gtk_frame_new(NULL);
         GtkWidget* terminal_frame_buttons = gtk_frame_new(NULL);
         
@@ -120,7 +125,7 @@ int main(int argc, char* argv[]) {
         gtk_container_add(GTK_CONTAINER(terminal_frame), terminal_box);
         // gtk_container_add(GTK_CONTAINER(terminal_frame_buttons), buttons_box);
         
-        create_terminal_with_buttons(terminal_box, i);
+        create_terminal_with_buttons(terminal_box, command[i].c_str());
         
         gtk_box_pack_start(GTK_BOX(lower_box), terminal_frame, TRUE, TRUE, 5);
         // gtk_box_pack_start(GTK_BOX(lower_box), terminal_frame_buttons, TRUE, TRUE, 5);
