@@ -31,7 +31,6 @@ static void create_terminal(GtkWidget* container) {
 
 static void prepare_button_clicked(GtkButton* button, gpointer user_data) {
     // Handle the "Prepare" button click
-    int *data = user_data;
     std::cout << &user_data << std::endl;
 }
 
