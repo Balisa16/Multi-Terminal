@@ -32,6 +32,17 @@ static void create_terminal(GtkWidget* container) {
 static void prepare_button_clicked(GtkButton* button, gpointer user_data) {
     // Handle the "Prepare" button click
     const char* message = static_cast<const char*>(user_data);
+    // std::cout << "Prepare button clicked : " << message << std::endl;
+    // Handle the "Prepare" button click
+    const char* command = static_cast<const char*>(user_data);
+
+    // Get the terminal widget from the button's parent container
+    GtkWidget* terminal = gtk_widget_get_ancestor(GTK_WIDGET(button), VTE_TYPE_TERMINAL);
+
+    // Feed the command to the terminal
+    vte_terminal_feed_child(VTE_TERMINAL(terminal), message, -1);
+    vte_terminal_feed_child(VTE_TERMINAL(terminal), "\n", -1);
+
     std::cout << "Prepare button clicked : " << message << std::endl;
     // std::cout << &user_data << std::endl;
 }
