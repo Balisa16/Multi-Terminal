@@ -1,0 +1,4 @@
+/home/a/Dev/multi-terminal/build/CMakeFiles/main1.dir
+/home/a/Dev/multi-terminal/build/CMakeFiles/main2.dir
+/home/a/Dev/multi-terminal/build/CMakeFiles/edit_cache.dir
+/home/a/Dev/multi-terminal/build/CMakeFiles/rebuild_cache.dir
