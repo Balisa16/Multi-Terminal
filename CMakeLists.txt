@@ -8,11 +8,17 @@ pkg_check_modules(VTE REQUIRED vte-2.91)
 
 set(CMAKE_CXX_STANDARD 11)
 
+include_directories(
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
+  ${GTK3_INCLUDE_DIRS}
+  ${VTE_INCLUDE_DIRS})
+
 add_executable(main1 src/main1.cpp)
 add_executable(main2 src/main2.cpp)
 
-target_include_directories(main1 PRIVATE ${GTK3_INCLUDE_DIRS} ${VTE_INCLUDE_DIRS})
-target_include_directories(main2 PRIVATE ${GTK3_INCLUDE_DIRS} ${VTE_INCLUDE_DIRS})
+# target_include_directories(main1 PRIVATE ${GTK3_INCLUDE_DIRS} ${VTE_INCLUDE_DIRS})
+# target_include_directories(main2 PRIVATE ${GTK3_INCLUDE_DIRS} ${VTE_INCLUDE_DIRS})
+
 target_link_libraries(main1 ${GTK3_LIBRARIES} ${VTE_LIBRARIES})
 target_link_libraries(main2 ${GTK3_LIBRARIES} ${VTE_LIBRARIES})
 
