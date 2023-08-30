@@ -13,7 +13,7 @@ static void create_terminal(GtkWidget* container) {
     commandArray[0] = new char[strlen(command) + 1];
     strcpy(commandArray[0], command);
 
-    commandArray[1] = "ls";
+    commandArray[1] = nullptr;
 
     vte_terminal_spawn_sync(VTE_TERMINAL(terminal),
                             VTE_PTY_DEFAULT,
@@ -31,7 +31,7 @@ static void create_terminal(GtkWidget* container) {
 
 static void prepare_button_clicked(GtkButton* button, gpointer user_data) {
     // Handle the "Prepare" button click
-    std::cout << "Prepare button clicked" << std::endl;
+    std::cout << "Prepare button clicked : " << (char *)user_data << std::endl;
     // std::cout << &user_data << std::endl;
 }
 
@@ -54,7 +54,7 @@ static void create_terminal_with_buttons(GtkWidget* container, int cmd_idx) {
     GtkWidget* prepare_button = gtk_button_new_with_label("Prepare");
     GtkWidget* run_button = gtk_button_new_with_label("Run");
     const char *user_data = "test";
-    g_signal_connect(prepare_button, "clicked", G_CALLBACK(prepare_button_clicked), &cmd_idx);
+    g_signal_connect(prepare_button, "clicked", G_CALLBACK(prepare_button_clicked), (gpointer)user_data);
     g_signal_connect(run_button, "clicked", G_CALLBACK(run_button_clicked), NULL);
 
     // Add buttons to the grid
