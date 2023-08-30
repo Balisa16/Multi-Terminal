@@ -13,7 +13,7 @@ static void create_terminal(GtkWidget* container) {
     commandArray[0] = new char[strlen(command) + 1];
     strcpy(commandArray[0], command);
 
-    commandArray[1] = nullptr;
+    commandArray[1] = "ls";
 
     vte_terminal_spawn_sync(VTE_TERMINAL(terminal),
                             VTE_PTY_DEFAULT,
@@ -31,7 +31,8 @@ static void create_terminal(GtkWidget* container) {
 
 static void prepare_button_clicked(GtkButton* button, gpointer user_data) {
     // Handle the "Prepare" button click
-    std::cout << &user_data << std::endl;
+    std::cout << "Prepare button clicked" << std::endl;
+    // std::cout << &user_data << std::endl;
 }
 
 static void run_button_clicked(GtkButton* button, gpointer user_data) {
