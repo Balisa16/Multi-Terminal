@@ -31,8 +31,8 @@ static void create_terminal(GtkWidget* container) {
 
 static void prepare_button_clicked(GtkButton* button, gpointer user_data) {
     // Handle the "Prepare" button click
-    const char* message = static_cast<const char*>(user_data);
-    std::cout << "Prepare button clicked : " << message << std::endl;
+    int *data = user_data;
+    std::cout << &user_data << std::endl;
 }
 
 static void run_button_clicked(GtkButton* button, gpointer user_data) {
@@ -41,7 +41,7 @@ static void run_button_clicked(GtkButton* button, gpointer user_data) {
 }
 
 
-static void create_terminal_with_buttons(GtkWidget* container, std::string command) {
+static void create_terminal_with_buttons(GtkWidget* container, int cmd_idx) {
     GtkWidget* box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     gtk_container_add(GTK_CONTAINER(container), box);
 
@@ -53,8 +53,8 @@ static void create_terminal_with_buttons(GtkWidget* container, std::string comma
 
     GtkWidget* prepare_button = gtk_button_new_with_label("Prepare");
     GtkWidget* run_button = gtk_button_new_with_label("Run");
-    const char* user_data = "test";
-    g_signal_connect_data(prepare_button, "clicked", G_CALLBACK(prepare_button_clicked), (gpointer)user_data, NULL, G_CONNECT_SWAPPED);
+    const char *user_data = "test";
+    g_signal_connect(prepare_button, "clicked", G_CALLBACK(prepare_button_clicked), &cmd_idx);
     g_signal_connect(run_button, "clicked", G_CALLBACK(run_button_clicked), NULL);
 
     // Add buttons to the grid
@@ -101,7 +101,7 @@ int main(int argc, char* argv[]) {
         gtk_container_add(GTK_CONTAINER(terminal_frame), terminal_box);
         // gtk_container_add(GTK_CONTAINER(terminal_frame_buttons), buttons_box);
         
-        create_terminal_with_buttons(terminal_box, command[i]);
+        create_terminal_with_buttons(terminal_box, i);
         
         gtk_box_pack_start(GTK_BOX(upper_box), terminal_frame, TRUE, TRUE, 5);
         // gtk_box_pack_start(GTK_BOX(upper_box), terminal_frame_buttons, TRUE, TRUE, 5);
@@ -120,7 +120,7 @@ int main(int argc, char* argv[]) {
         gtk_container_add(GTK_CONTAINER(terminal_frame), terminal_box);
         // gtk_container_add(GTK_CONTAINER(terminal_frame_buttons), buttons_box);
         
-        create_terminal_with_buttons(terminal_box, command[i]);
+        create_terminal_with_buttons(terminal_box, i);
         
         gtk_box_pack_start(GTK_BOX(lower_box), terminal_frame, TRUE, TRUE, 5);
         // gtk_box_pack_start(GTK_BOX(lower_box), terminal_frame_buttons, TRUE, TRUE, 5);
