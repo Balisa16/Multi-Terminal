@@ -40,13 +40,13 @@ static void prepare_button_clicked(GtkButton* button, gpointer user_data) {
     TerminalPair* data = cast_data(user_data);
 
     // Feed the command to the terminal
-    vte_terminal_feed_child(VTE_TERMINAL(data->terminal), data->command, -1);
-    vte_terminal_feed_child(VTE_TERMINAL(data->terminal), "\n", -1);
+    vte_terminal_feed_child(VTE_TERMINAL(data->terminal), data->client, -1);
+    vte_terminal_feed_child(VTE_TERMINAL(data->terminal), " ", -1);
 }
 
 static void run_button_clicked(GtkButton* button, gpointer user_data) {
     TerminalPair* data = cast_data(user_data);
-    vte_terminal_feed_child(VTE_TERMINAL(data->terminal), data->client, -1);
+    vte_terminal_feed_child(VTE_TERMINAL(data->terminal), data->command, -1);
     vte_terminal_feed_child(VTE_TERMINAL(data->terminal), "\n", -1);
 }
 
@@ -124,12 +124,15 @@ int main(int argc, char* argv[]) {
     };
 
     if(argc < 2)
+    {
         std::cout << "Use command ./<program> <client_addr>" << std::endl;
+        return -1;
+    }
     
     std::string client_addr = std::string(argv[1]);
-    std::cout << client_addr;
+    std::cout << "Client Address\t: " << client_addr << std::endl;
     std::string password = get_password();
-    std::cout << "Password entered: " << password << std::endl;
+    std::cout << "Password Entered\t: " << password << std::endl;
 
     std::string client_args = "sshpass -p '" + password + "' ssh -t " + client_addr + " 'lsb_release -a  && exec $SHELL'";
 
