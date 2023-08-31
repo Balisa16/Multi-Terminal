@@ -7,6 +7,7 @@
 #include <fstream>
 #include <jsoncpp/json/json.h>
 #include <vector>
+#include <cmath>
 
 struct CommandItem{
     std::string window_name;
@@ -33,6 +34,15 @@ struct JSONData
     }
 };
 
+struct Command{
+    std::string host;
+    std::string ip;
+    std::string password;
+    CommandItem item;
+    Command(std::string host, std::string ip_address, std::string pass, CommandItem command_item):
+        host(host), ip(ip_address), password(pass), item(command_item){}
+};
+
 std::vector<JSONData> read_json(std::string path)
 {
     std::ifstream inputFile(path);
@@ -48,7 +58,6 @@ std::vector<JSONData> read_json(std::string path)
 
     std::vector<JSONData> data;
     for (const auto& item : jsonData) {
-        std::cout << "Test" << std::endl;
         CommandItem first_command = {
             item["commands"][0]["name"].asString(),
             item["commands"][0]["command"].asString()
@@ -182,29 +191,21 @@ static void create_terminal_with_buttons(GtkWidget* container, const char *cmd, 
     gtk_box_pack_end(GTK_BOX(box), button_grid, FALSE, FALSE, 1);
 }
 
+const char *generate_command(std::string host, std::string ip, std::string pass)
+{
+    return std::string("sshpass -p '" + pass + "' ssh -t " + host + "@" + ip + " 'exec $SHELL'").c_str();
+}
+
 int main(int argc, char* argv[]) {
-    std::vector<JSONData> json_data = read_json("../src/command.json");
-
-    for (int i = 0; i < json_data.size(); i++)
+    std::vector<JSONData> json_data;
+    if(argc == 2)
     {
-        std::cout << "Host\t: " << json_data[i].host << std::endl;
-        std::cout << "IP\t: " << json_data[i].ip << std::endl;
-        std::cout << "Pass\t: " << json_data[i].password << std::endl;
-        for(auto d: json_data[i].item)
-            std::cout << "Item " << d.window_name << "\t" << d.command << std::endl;
+        std::cout << "Loading JSON file in " << argv[1] << std::endl;
+        json_data = read_json(argv[1]);
+    } else {
+        std::cout << "Using default JSON data" << std::endl;
+        json_data = read_json("../src/command.json");
     }
-    
-
-    if(argc < 2)
-    {
-        std::cout << "Use command ./<program> <client_addr>" << std::endl;
-        return -1;
-    }
-    
-    std::string client_addr = std::string(argv[1]);
-    std::string password = get_password();
-
-    std::string client_args = "sshpass -p '" + password + "' ssh -t " + client_addr + " 'exec $SHELL'";
 
 
     gtk_init(&argc, &argv);
@@ -224,34 +225,60 @@ int main(int argc, char* argv[]) {
     gtk_box_pack_start(GTK_BOX(main_box), upper_box, TRUE, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(main_box), lower_box, TRUE, TRUE, 0);
 
-    // for (int i = 0; i < 4; ++i) {
-    //     GtkWidget* terminal_frame = gtk_frame_new(NULL);
-        
-    //     gtk_frame_set_label(GTK_FRAME(terminal_frame), ("Terminal " + std::to_string(i + 1)).c_str());
-        
-    //     GtkWidget* terminal_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-        
-    //     gtk_container_add(GTK_CONTAINER(terminal_frame), terminal_box);
-        
-    //     create_terminal_with_buttons(terminal_box, command[i].c_str(), client_args.c_str());
-        
-    //     gtk_box_pack_start(GTK_BOX(upper_box), terminal_frame, TRUE, TRUE, 5);
-    // }
+    std::vector<Command> cmd;
+    for (auto itm: json_data)
+    {
+        std::string host = itm.host;
+        std::string ip = itm.ip;
+        std::string pass = itm.password;
+        for(auto d: itm.item)
+            cmd.push_back({host, ip, pass, d});
+    }
+    
+    int tot_command = cmd.size();
+    if(tot_command == 0)
+        std::cout << "JSON File is blank or Failed to read" << std::endl;
+    else{
+        int atas = 0, bawah = 0;
+        if(tot_command%2 == 0){
+            atas = tot_command/2;
+            bawah = atas;
+        }else{
+            atas = std::ceil(tot_command/2.0f);
+            bawah = std::floor(tot_command/2.0f);
+        }
 
-    // for (int i = 4; i < 8; ++i) {
-    //     GtkWidget* terminal_frame = gtk_frame_new(NULL);
-    //     GtkWidget* terminal_frame_buttons = gtk_frame_new(NULL);
-        
-    //     gtk_frame_set_label(GTK_FRAME(terminal_frame), ("Terminal " + std::to_string(i)).c_str());
-        
-    //     GtkWidget* terminal_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-        
-    //     gtk_container_add(GTK_CONTAINER(terminal_frame), terminal_box);
-        
-    //     create_terminal_with_buttons(terminal_box, command[i].c_str(), client_args.c_str());
-        
-    //     gtk_box_pack_start(GTK_BOX(lower_box), terminal_frame, TRUE, TRUE, 5);
-    // }
+        // Row 1
+        for (int i = 0; i < atas; ++i) {
+            GtkWidget* terminal_frame = gtk_frame_new(NULL);
+            
+            gtk_frame_set_label(GTK_FRAME(terminal_frame), cmd[i].item.window_name.c_str());
+            
+            GtkWidget* terminal_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+            
+            gtk_container_add(GTK_CONTAINER(terminal_frame), terminal_box);
+            
+            create_terminal_with_buttons(terminal_box, cmd[i].item.command.c_str(), generate_command(cmd[i].host, cmd[i].ip, cmd[i].password));
+            
+            gtk_box_pack_start(GTK_BOX(upper_box), terminal_frame, TRUE, TRUE, 5);
+        }
+        // Row 2
+        for (int i = atas; i < cmd.size(); ++i) {
+            GtkWidget* terminal_frame = gtk_frame_new(NULL);
+            GtkWidget* terminal_frame_buttons = gtk_frame_new(NULL);
+            
+            gtk_frame_set_label(GTK_FRAME(terminal_frame), cmd[i].item.window_name.c_str());
+            
+            GtkWidget* terminal_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+            
+            gtk_container_add(GTK_CONTAINER(terminal_frame), terminal_box);
+            
+            create_terminal_with_buttons(terminal_box, cmd[i].item.command.c_str(), generate_command(cmd[i].host, cmd[i].ip, cmd[i].password));
+            
+            gtk_box_pack_start(GTK_BOX(lower_box), terminal_frame, TRUE, TRUE, 5);
+        }
+    }
+
 
     gtk_widget_show_all(window);
     gtk_main();
