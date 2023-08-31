@@ -2,82 +2,164 @@
 #include <vte/vte.h>
 #include <iostream>
 #include <string>
-#include <vector>
+#include <termios.h>
+#include <unistd.h>
+#include <exception>
+
+struct TerminalPair{
+    Terminal* terminal_class;
+    GtkWidget* terminal;
+    const char* command;
+    const char* client;
+    int status;
+    TerminalPair(Terminal*  class_term, GtkWidget* term, const char *cmd, const char *cl, int stat): terminal_class(class_term), terminal(term), command(cmd), client(cl), status(stat){}
+};
+
+TerminalPair* cast_data(gpointer data)
+{
+    return static_cast<TerminalPair*>(data);
+}
 
 class Terminal
 {
 private:
+    std::string get_password();
+    static TerminalPair* cast_data(gpointer data);
+    static void prepare_button_clicked(GtkButton* button, gpointer user_data);
+    static void run_button_clicked(GtkButton* button, gpointer user_data);
+    GtkWidget* create_terminal(GtkWidget* container, const char *client);
+    void create_terminal_with_buttons(GtkWidget* container, const char *cmd, const char *client);
+    void connect_callback_event(GtkWidget* term, const char *cmd, const char *cl, int stat);
 public:
-    void create_terminal(GtkWidget* container)
-    {
-        GtkWidget* terminal = vte_terminal_new();
-        vte_terminal_set_cursor_blink_mode(VTE_TERMINAL(terminal), VTE_CURSOR_BLINK_OFF);
-
-        const char* command = "/usr/bin/bash";
-        char** commandArray = new char*[2];
-
-        commandArray[0] = new char[strlen(command) + 1];
-        strcpy(commandArray[0], command);
-
-        commandArray[1] = nullptr;
-
-        vte_terminal_spawn_sync(VTE_TERMINAL(terminal),
-                                VTE_PTY_DEFAULT,
-                                NULL,
-                                commandArray,
-                                NULL, G_SPAWN_DEFAULT, NULL,
-                                NULL, NULL,
-                                NULL, NULL
-                                );
-        gtk_container_add(GTK_CONTAINER(container), terminal);
-
-        // Clean up memory
-        delete[] commandArray;
-        // delete command;
-        // delete terminal;
-    }
-
-    // Click event Callback
-    static void prepare_button_callback(GtkButton* button, gpointer user_data) {
-        std::cout << "Prepare button clicked" << std::endl;
-    }
-
-    static void run_button_callback(GtkButton* button, gpointer user_data) {
-        std::cout << "Run button clicked" << std::endl;
-    }
-
-    void create_terminal_with_buttons(GtkWidget* container) {
-        GtkWidget* box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-        gtk_container_add(GTK_CONTAINER(container), box);
-
-        create_terminal(box);
-
-        // Create a grid to hold the buttons
-        GtkWidget* button_grid = gtk_grid_new();
-        gtk_grid_set_column_spacing(GTK_GRID(button_grid), 5);
-
-        GtkWidget* prepare_button = gtk_button_new_with_label("Prepare");
-        GtkWidget* run_button = gtk_button_new_with_label("Run");
-
-        g_signal_connect(prepare_button, "Prepare Clicked", G_CALLBACK(prepare_button_callback), NULL);
-        g_signal_connect(run_button, "Run Clicked", G_CALLBACK(run_button_callback), NULL);
-
-        // Add buttons to the grid
-        gtk_grid_attach(GTK_GRID(button_grid), prepare_button, 0, 0, 1, 1);
-        gtk_grid_attach(GTK_GRID(button_grid), run_button, 1, 0, 1, 1);
-
-        // Pack the grid at the bottom of the box
-        gtk_box_pack_end(GTK_BOX(box), button_grid, FALSE, FALSE, 5);
-    }
-    Terminal(int argc, char* argv[]);
+    Terminal(int argc, char *argv[]);
     ~Terminal();
 };
 
-Terminal::Terminal(int argc, char* argv[])
+inline std::string Terminal::get_password() {
+    std::string password;
+    termios oldt, newt;
+    
+    tcgetattr(STDIN_FILENO, &oldt);
+    newt = oldt;
+    newt.c_lflag &= ~ECHO;
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+    
+    std::cout << "Enter client password: ";
+    std::cin >> password;
+    
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+    std::cout << std::endl;
+    
+    return password;
+}
+
+inline void Terminal::prepare_button_clicked(GtkButton *button, gpointer user_data)
 {
+    TerminalPair* app = static_cast<TerminalPair>(user_data);
+    app->terminal_class->connect_callback_event(app->terminal, app->command, app->client, app->status);
+}
+
+inline static void Terminal::run_button_clicked(GtkButton* button, gpointer user_data) {
+    TerminalPair* data = cast_data(user_data);
+    vte_terminal_feed_child(VTE_TERMINAL(data->terminal), data->command, -1);
+    vte_terminal_feed_child(VTE_TERMINAL(data->terminal), "\n", -1);
+}
+
+
+
+inline GtkWidget* Terminal::create_terminal(GtkWidget* container, const char *client) {
+    GtkWidget* terminal = vte_terminal_new();
+    vte_terminal_set_cursor_blink_mode(VTE_TERMINAL(terminal), VTE_CURSOR_BLINK_OFF);
+
+    const char* command = "/usr/bin/bash";
+
+    const char* homeDirectory = getenv("HOME");
+
+    char** commandArray = new char*[2];
+    commandArray[0] = new char[strlen(command) + 1];
+    strcpy(commandArray[0], command);
+
+    commandArray[1] = nullptr;
+
+    vte_terminal_spawn_sync(VTE_TERMINAL(terminal),
+                            VTE_PTY_DEFAULT,
+                            homeDirectory,
+                            commandArray,
+                            NULL, G_SPAWN_DEFAULT, NULL,
+                            NULL, NULL,
+                            NULL, NULL
+                            );
+
+    gtk_container_add(GTK_CONTAINER(container), terminal);
+
+    // Clean up memory
+    for (int i = 0; commandArray[i] != nullptr; ++i) {
+        delete[] commandArray[i];
+    }
+    delete[] commandArray;
+
+    return terminal;
+}
+
+inline void Terminal::create_terminal_with_buttons(GtkWidget* container, const char *cmd, const char *client) {
+    GtkWidget* box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+    gtk_container_add(GTK_CONTAINER(container), box);
+
+    GtkWidget* terminal_widget = create_terminal(box, client);
+
+    GtkWidget* button_grid = gtk_grid_new();
+    gtk_grid_set_column_spacing(GTK_GRID(button_grid), 5);
+
+    GtkWidget* prepare_button = gtk_button_new_with_label("Connect");
+    GtkWidget* run_button = gtk_button_new_with_label("Run");
+
+    TerminalPair* terminal_pair = new TerminalPair(this, terminal_widget, cmd, client, -1);
+
+    g_signal_connect(prepare_button, "clicked", G_CALLBACK(prepare_button_clicked), (gpointer)terminal_pair);
+    g_signal_connect(run_button, "clicked", G_CALLBACK(run_button_clicked), (gpointer)terminal_pair);
+
+    gtk_widget_set_halign(button_grid, GTK_ALIGN_CENTER);
+
+    gtk_grid_attach(GTK_GRID(button_grid), prepare_button, 0, 0, 1, 1);
+    gtk_grid_attach(GTK_GRID(button_grid), run_button, 1, 0, 1, 1);
+
+    gtk_box_pack_end(GTK_BOX(box), button_grid, FALSE, FALSE, 1);
+}
+
+inline void Terminal::connect_callback_event(GtkWidget* term, const char *cmd, const char *cl, int stat)
+{
+    
+}
+
+Terminal::Terminal(int argc, char *argv[])
+{
+     std::string command[8] = {
+        "./rs.sh",
+        "./apm.sh",
+        "roslaunch rplidar_ros rplidar_s1.launch",
+        "./rs2.sh",
+        "date",
+        "ls /dev/video*",
+        "rosservice call /mavros/set_stream_rate 0 100 1",
+        "rosrun emiro 1 0 1"
+    };
+
+    if(argc < 2)
+    {
+        std::cout << "Use command ./<program> <client_addr>" << std::endl;
+        throw;
+    }
+    
+    std::string client_addr = std::string(argv[1]);
+    std::string password = get_password();
+
+    std::string client_args = "sshpass -p '" + password + "' ssh -t " + client_addr + " 'exec $SHELL'";
+
+
     gtk_init(&argc, &argv);
 
     GtkWidget* window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title(GTK_WINDOW(window), "EMIRO Copter System");
     // gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
     gtk_window_maximize(GTK_WINDOW(window));
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
@@ -93,40 +175,31 @@ Terminal::Terminal(int argc, char* argv[])
 
     for (int i = 0; i < 4; ++i) {
         GtkWidget* terminal_frame = gtk_frame_new(NULL);
-        // GtkWidget* terminal_frame_buttons = gtk_frame_new(NULL);
         
         gtk_frame_set_label(GTK_FRAME(terminal_frame), ("Terminal " + std::to_string(i + 1)).c_str());
-        // gtk_frame_set_label(GTK_FRAME(terminal_frame_buttons), "Buttons");
         
         GtkWidget* terminal_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-        // GtkWidget* buttons_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
         
         gtk_container_add(GTK_CONTAINER(terminal_frame), terminal_box);
-        // gtk_container_add(GTK_CONTAINER(terminal_frame_buttons), buttons_box);
         
-        create_terminal_with_buttons(terminal_box);
+        create_terminal_with_buttons(terminal_box, command[i].c_str(), client_args.c_str());
         
         gtk_box_pack_start(GTK_BOX(upper_box), terminal_frame, TRUE, TRUE, 5);
-        // gtk_box_pack_start(GTK_BOX(upper_box), terminal_frame_buttons, TRUE, TRUE, 5);
     }
 
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 4; i < 8; ++i) {
         GtkWidget* terminal_frame = gtk_frame_new(NULL);
         GtkWidget* terminal_frame_buttons = gtk_frame_new(NULL);
         
-        gtk_frame_set_label(GTK_FRAME(terminal_frame), ("Terminal " + std::to_string(i + 5)).c_str());
-        // gtk_frame_set_label(GTK_FRAME(terminal_frame_buttons), "Buttons");
+        gtk_frame_set_label(GTK_FRAME(terminal_frame), ("Terminal " + std::to_string(i)).c_str());
         
         GtkWidget* terminal_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-        // GtkWidget* buttons_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
         
         gtk_container_add(GTK_CONTAINER(terminal_frame), terminal_box);
-        // gtk_container_add(GTK_CONTAINER(terminal_frame_buttons), buttons_box);
         
-        create_terminal_with_buttons(terminal_box);
+        create_terminal_with_buttons(terminal_box, command[i].c_str(), client_args.c_str());
         
         gtk_box_pack_start(GTK_BOX(lower_box), terminal_frame, TRUE, TRUE, 5);
-        // gtk_box_pack_start(GTK_BOX(lower_box), terminal_frame_buttons, TRUE, TRUE, 5);
     }
 
     gtk_widget_show_all(window);

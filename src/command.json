@@ -1,27 +1,46 @@
-{
-    "host": "a",
-    "ip": "192.168.0.100",
-    "commands": [
-        {
-            "name": "T265",
-            "command": "./rs.sh"
-        },
-        {
-            "name": "APM",
-            "command": "./apm.sh"
-        },
-        {
-            "name": "Lidar",
-            "command": "./rs2.sh"
-        },
-        {
-            "name": "T265 Data Transfer",
-            "command": "./rs2.sh"
-        },
-        {
-            "name": "Stream Rate",
-            "command": "rosservice call /mavros/set_stream_rate 0 100 1"
-        }
-    ]
-}
+[
+    {
+        "host": "a",
+        "ip": "192.168.0.100",
+        "pass": "1",
+        "commands": [
+            {
+                "name": "T265",
+                "command": "./rs.sh"
+            },
+            {
+                "name": "APM",
+                "command": "./apm.sh"
+            },
+            {
+                "name": "Lidar",
+                "command": "./rs2.sh"
+            },
+            {
+                "name": "T265 Data Transfer",
+                "command": "./rs2.sh"
+            },
+            {
+                "name": "Stream Rate",
+                "command": "rosservice call /mavros/set_stream_rate 0 100 1"
+            },
+            {
+                "name": "Copter Pose",
+                "command": "rosservice call /mavros/set_stream_rate 0 100 1"
+            }
+        ]
+    },
+    {
+        "host": "odroid",
+        "ip": "192.168.0.102",
+        "pass": "odroid",
+        "commands": [
+            {
+                "name": "Stream Video",
+                "command": "./send.sh"
+            }
+        ]
+    }
+]
+
   
