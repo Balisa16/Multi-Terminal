@@ -27,6 +27,10 @@
             {
                 "name": "Copter Pose",
                 "command": "rosservice call /mavros/set_stream_rate 0 100 1"
+            },
+            {
+                "name":"Mission",
+                "command":"rosrun emiro 1 0 1"
             }
         ]
     },
