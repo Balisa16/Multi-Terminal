@@ -41,7 +41,7 @@ static void prepare_button_clicked(GtkButton* button, gpointer user_data) {
 
     // Feed the command to the terminal
     vte_terminal_feed_child(VTE_TERMINAL(data->terminal), data->client, -1);
-    vte_terminal_feed_child(VTE_TERMINAL(data->terminal), " ", -1);
+    vte_terminal_feed_child(VTE_TERMINAL(data->terminal), "\n", -1);
 }
 
 static void run_button_clicked(GtkButton* button, gpointer user_data) {
