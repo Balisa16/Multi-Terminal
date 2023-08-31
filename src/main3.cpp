@@ -42,6 +42,9 @@ static void prepare_button_clicked(GtkButton* button, gpointer user_data) {
     // Feed the command to the terminal
     vte_terminal_feed_child(VTE_TERMINAL(data->terminal), data->client, -1);
     vte_terminal_feed_child(VTE_TERMINAL(data->terminal), "\n", -1);
+
+    vte_terminal_feed_child(VTE_TERMINAL(data->terminal), "clear", -1);
+    vte_terminal_feed_child(VTE_TERMINAL(data->terminal), "\n", -1);
 }
 
 static void run_button_clicked(GtkButton* button, gpointer user_data) {
@@ -50,7 +53,7 @@ static void run_button_clicked(GtkButton* button, gpointer user_data) {
     vte_terminal_feed_child(VTE_TERMINAL(data->terminal), "\n", -1);
 }
 
-static GtkWidget* create_terminal(GtkWidget* container) {
+static GtkWidget* create_terminal(GtkWidget* container, const char *client) {
     GtkWidget* terminal = vte_terminal_new();
     vte_terminal_set_cursor_blink_mode(VTE_TERMINAL(terminal), VTE_CURSOR_BLINK_OFF);
 
@@ -73,6 +76,7 @@ static GtkWidget* create_terminal(GtkWidget* container) {
                             NULL, NULL,
                             NULL, NULL
                             );
+
     gtk_container_add(GTK_CONTAINER(container), terminal);
 
     // Clean up memory
@@ -89,7 +93,7 @@ static void create_terminal_with_buttons(GtkWidget* container, const char *cmd, 
     GtkWidget* box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     gtk_container_add(GTK_CONTAINER(container), box);
 
-    GtkWidget* terminal_widget = create_terminal(box);
+    GtkWidget* terminal_widget = create_terminal(box, client);
 
     // Create a grid to hold the buttons
     GtkWidget* button_grid = gtk_grid_new();
@@ -130,11 +134,9 @@ int main(int argc, char* argv[]) {
     }
     
     std::string client_addr = std::string(argv[1]);
-    std::cout << "Client Address\t: " << client_addr << std::endl;
     std::string password = get_password();
-    std::cout << "Password Entered\t: " << password << std::endl;
 
-    std::string client_args = "sshpass -p '" + password + "' ssh -t " + client_addr + " 'lsb_release -a  && exec $SHELL'";
+    std::string client_args = "sshpass -p '" + password + "' ssh -t " + client_addr + " 'exec $SHELL'";
 
 
     gtk_init(&argc, &argv);
