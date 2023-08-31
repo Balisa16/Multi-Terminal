@@ -115,10 +115,10 @@ static void prepare_button_clicked(GtkButton* button, gpointer user_data) {
 
     // Feed the command to the terminal
     vte_terminal_feed_child(VTE_TERMINAL(data->terminal), data->client.c_str(), -1);
-    // vte_terminal_feed_child(VTE_TERMINAL(data->terminal), "\n", -1);
+    vte_terminal_feed_child(VTE_TERMINAL(data->terminal), "\n", -1);
 
-    // vte_terminal_feed_child(VTE_TERMINAL(data->terminal), "clear", -1);
-    // vte_terminal_feed_child(VTE_TERMINAL(data->terminal), "\n", -1);
+    vte_terminal_feed_child(VTE_TERMINAL(data->terminal), "clear", -1);
+    vte_terminal_feed_child(VTE_TERMINAL(data->terminal), "\n", -1);
 }
 
 static void run_button_clicked(GtkButton* button, gpointer user_data) {
@@ -136,7 +136,6 @@ static GtkWidget* create_terminal(GtkWidget* container, const char *client) {
 
     const char* homeDirectory = getenv("HOME");
 
-    // Construct the command array
     char** commandArray = new char*[2];
     commandArray[0] = new char[strlen(command) + 1];
     strcpy(commandArray[0], command);
