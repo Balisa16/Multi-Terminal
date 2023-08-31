@@ -1,0 +1,27 @@
+{
+    "host": "a",
+    "ip": "192.168.0.100",
+    "commands": [
+        {
+            "name": "T265",
+            "command": "./rs.sh"
+        },
+        {
+            "name": "APM",
+            "command": "./apm.sh"
+        },
+        {
+            "name": "Lidar",
+            "command": "./rs2.sh"
+        },
+        {
+            "name": "T265 Data Transfer",
+            "command": "./rs2.sh"
+        },
+        {
+            "name": "Stream Rate",
+            "command": "rosservice call /mavros/set_stream_rate 0 100 1"
+        }
+    ]
+}
+  
