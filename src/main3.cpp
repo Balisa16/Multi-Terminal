@@ -107,12 +107,14 @@ static void create_terminal_with_buttons(GtkWidget* container, const char *cmd, 
     g_signal_connect(prepare_button, "clicked", G_CALLBACK(prepare_button_clicked), (gpointer)terminal_pair);
     g_signal_connect(run_button, "clicked", G_CALLBACK(run_button_clicked), (gpointer)terminal_pair);
 
+    gtk_widget_set_halign(button_grid, GTK_ALIGN_CENTER);
+
     // Add buttons to the grid
     gtk_grid_attach(GTK_GRID(button_grid), prepare_button, 0, 0, 1, 1);
     gtk_grid_attach(GTK_GRID(button_grid), run_button, 1, 0, 1, 1);
 
     // Pack the grid at the bottom of the box
-    gtk_box_pack_end(GTK_BOX(box), button_grid, FALSE, FALSE, 5);
+    gtk_box_pack_end(GTK_BOX(box), button_grid, FALSE, FALSE, 1);
 }
 
 int main(int argc, char* argv[]) {
@@ -174,7 +176,7 @@ int main(int argc, char* argv[]) {
         GtkWidget* terminal_frame = gtk_frame_new(NULL);
         GtkWidget* terminal_frame_buttons = gtk_frame_new(NULL);
         
-        gtk_frame_set_label(GTK_FRAME(terminal_frame), ("Terminal " + std::to_string(i + 5)).c_str());
+        gtk_frame_set_label(GTK_FRAME(terminal_frame), ("Terminal " + std::to_string(i)).c_str());
         
         GtkWidget* terminal_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
         
