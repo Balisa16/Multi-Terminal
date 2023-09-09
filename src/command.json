@@ -1,6 +1,6 @@
 [
     {
-        "host": "a",
+        "host": "a2",
         "ip": "192.168.0.100",
         "pass": "1",
         "commands": [
@@ -30,7 +30,7 @@
             },
             {
                 "name":"Mission",
-                "command":"rosrun emiro 1 0 1"
+                "command":"rosrun emiro gps_400 1 0 1 1.0"
             }
         ]
     },

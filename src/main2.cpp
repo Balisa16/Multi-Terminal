@@ -112,13 +112,31 @@ TerminalPair* cast_data(gpointer data)
 
 static void prepare_button_clicked(GtkButton* button, gpointer user_data) {
     TerminalPair* data = cast_data(user_data);
+    const GdkRGBA _green_btn = {50, 200, 90, 255};
+    const GdkRGBA _red_btn = {200, 50, 50, 255};
+    if(data->status <= 0)
+    {
+        vte_terminal_feed_child(VTE_TERMINAL(data->terminal), data->client.c_str(), -1);
+        vte_terminal_feed_child(VTE_TERMINAL(data->terminal), "\n", -1);
 
-    // Feed the command to the terminal
-    vte_terminal_feed_child(VTE_TERMINAL(data->terminal), data->client.c_str(), -1);
-    vte_terminal_feed_child(VTE_TERMINAL(data->terminal), "\n", -1);
+        vte_terminal_feed_child(VTE_TERMINAL(data->terminal), "clear", -1);
+        vte_terminal_feed_child(VTE_TERMINAL(data->terminal), "\n", -1);
 
-    vte_terminal_feed_child(VTE_TERMINAL(data->terminal), "clear", -1);
-    vte_terminal_feed_child(VTE_TERMINAL(data->terminal), "\n", -1);
+        vte_terminal_feed_child(VTE_TERMINAL(data->terminal), "lsb_release -a", -1);
+        vte_terminal_feed_child(VTE_TERMINAL(data->terminal), "\n", -1);
+
+        gtk_button_set_label(button, "Disconnect");
+        data->status = 1;
+    }else{
+        vte_terminal_feed_child(VTE_TERMINAL(data->terminal), "exit", -1);
+        vte_terminal_feed_child(VTE_TERMINAL(data->terminal), "\n", -1);
+
+        vte_terminal_feed_child(VTE_TERMINAL(data->terminal), "lsb_release -a", -1);
+        vte_terminal_feed_child(VTE_TERMINAL(data->terminal), "\n", -1);
+
+        gtk_button_set_label(button, "Connect");
+        data->status = 0;
+    }
 }
 
 static void run_button_clicked(GtkButton* button, gpointer user_data) {
@@ -129,6 +147,12 @@ static void run_button_clicked(GtkButton* button, gpointer user_data) {
 
 static GtkWidget* create_terminal(GtkWidget* container, const char *client) {
     GtkWidget* terminal = vte_terminal_new();
+
+    PangoFontDescription* font_desc = pango_font_description_new();
+    pango_font_description_set_size(font_desc, 10);
+    pango_font_description_set_stretch(font_desc, PangoStretch::PANGO_STRETCH_ULTRA_CONDENSED);
+
+    vte_terminal_set_font(VTE_TERMINAL(terminal), font_desc);
 
     vte_terminal_set_cursor_blink_mode(VTE_TERMINAL(terminal), VTE_CURSOR_BLINK_OFF);
 

@@ -7,6 +7,7 @@ find_package(jsoncpp REQUIRED)
 pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
 pkg_check_modules(VTE REQUIRED vte-2.91)
 
+
 set(CMAKE_CXX_STANDARD 11)
 
 # include_directories(
