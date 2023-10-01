@@ -30,7 +30,7 @@
             },
             {
                 "name":"Mission",
-                "command":"rosrun emiro gps_400 1 0 1 1.0"
+                "command":"rosrun emiro full 1 0 1 1.0 15.0 0.3 8.0 1.0 0.8 1.0 1.0"
             }
         ]
     },

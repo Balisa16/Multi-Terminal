@@ -148,12 +148,6 @@ static void run_button_clicked(GtkButton* button, gpointer user_data) {
 static GtkWidget* create_terminal(GtkWidget* container, const char *client) {
     GtkWidget* terminal = vte_terminal_new();
 
-    PangoFontDescription* font_desc = pango_font_description_new();
-    pango_font_description_set_size(font_desc, 10);
-    pango_font_description_set_stretch(font_desc, PangoStretch::PANGO_STRETCH_ULTRA_CONDENSED);
-
-    vte_terminal_set_font(VTE_TERMINAL(terminal), font_desc);
-
     vte_terminal_set_cursor_blink_mode(VTE_TERMINAL(terminal), VTE_CURSOR_BLINK_OFF);
 
     const char* command = "/usr/bin/bash";
@@ -236,7 +230,7 @@ int main(int argc, char* argv[]) {
     gtk_init(&argc, &argv);
 
     GtkWidget* window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title(GTK_WINDOW(window), "EMIRO Copter System");
+    gtk_window_set_title(GTK_WINDOW(window), "EMIRO Autonomous Drone System");
     // gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
     gtk_window_maximize(GTK_WINDOW(window));
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);

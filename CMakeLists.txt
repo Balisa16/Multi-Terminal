@@ -18,6 +18,6 @@ target_include_directories(main PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}/include 
 	${jsoncpp_INCLUDE_DIRS})
 
-target_link_libraries(main ${GTK3_LIBRARIES} ${VTE_LIBRARIES})
+target_link_libraries(main ${GTK3_LIBRARIES} ${VTE_LIBRARIES} jsoncpp)
 
 target_compile_options(main PRIVATE ${GTK3_CFLAGS_OTHER} ${VTE_CFLAGS_OTHER})
