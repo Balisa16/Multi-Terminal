@@ -40,3 +40,10 @@ source ~/.bashrc
 cp ../run.sh ~/run.sh
 cd ~ && ./run.sh
 ```
+
+## Noted
+Please recheck your ssh target **bash** path with command :
+```
+which bash
+```
+And change file *src/main.cpp* in the line **153** with your ssh target bash path. Do it after clone and before build program.
