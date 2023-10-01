@@ -15,11 +15,11 @@ sudo make install
 ```
 2. VTE (Virtual Terminal Emulator)
 ```
-sudo apt-get install libvte-2.91-dev
+sudo apt-get install libvte-2.91-dev -y
 ```
 3. GTK3
 ```
-sudo apt-get install libgtk-3-dev
+sudo apt-get install libgtk-3-dev -y
 dpkg -l libgtk* | grep -e '^i' | grep -e 'libgtk-*[0-9]'
 ```
 ## Install
@@ -27,7 +27,7 @@ dpkg -l libgtk* | grep -e '^i' | grep -e 'libgtk-*[0-9]'
 ```
 git clone https://github.com/Balisa16/Multi-Terminal.git multi-terminal
 cd multi-terminal
-mkdir build
+mkdir build && cd build
 cmake .. && make -j4
 ```
 ### Add JSON File Directory
