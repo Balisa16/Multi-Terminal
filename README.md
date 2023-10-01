@@ -9,3 +9,9 @@ I created this project because I felt lazy to open terminals one by one, establi
 sudo apt-get install libvte-2.91-dev
 ```
 ## Install
+```
+git clone https://github.com/Balisa16/Multi-Terminal.git multi-terminal
+cd multi-terminal
+mkdir build
+cmake .. && make -j4
+```
