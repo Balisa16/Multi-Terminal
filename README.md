@@ -5,13 +5,33 @@ I created this project because I felt lazy to open terminals one by one, establi
 ![image](https://github.com/Balisa16/Multi-Terminal/assets/69964801/6818b24f-7002-4ee1-9253-d1f1697346af)
 
 ## Dependencies
+1. JSONCPP Library
+```
+git clone https://github.com/open-source-parsers/jsoncpp.git
+cd jsoncpp && mkdir build
+cd build && cmake ..
+make -j4
+sudo make install
+```
+2. VTE (Virtual Terminal Emulator)
 ```
 sudo apt-get install libvte-2.91-dev
 ```
+3. GTK3
+```
+sudo apt-get install libgtk-3-dev
+dpkg -l libgtk* | grep -e '^i' | grep -e 'libgtk-*[0-9]'
+```
 ## Install
+### Build Code
 ```
 git clone https://github.com/Balisa16/Multi-Terminal.git multi-terminal
 cd multi-terminal
 mkdir build
 cmake .. && make -j4
+```
+### Add JSON File Directory
+```
+echo 'export MT_PATH="'"$(pwd)"'"' >> ~/.bashrc
+source ~/.bashrc
 ```
